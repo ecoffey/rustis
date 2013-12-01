@@ -11,7 +11,7 @@ fn ping() {
 
   println(r.to_str());
 
-  let expected = ~Status(~"PONG");
+  let expected = Status(~"PONG");
 
   assert!(r.eq(&expected));
 }

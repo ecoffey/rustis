@@ -23,13 +23,13 @@ impl Client {
     }
   }
 
-  pub fn ping(&mut self) -> ~Response {
+  pub fn ping(&mut self) -> Response {
     self.send_command(~[~"PING"]);
     
     self.parse_response()
   }
 
-  fn parse_response(&mut self) -> ~Response {
+  fn parse_response(&mut self) -> Response {
     match self.stream.read_char() {
       Some(c) => {
         match c {
@@ -41,8 +41,8 @@ impl Client {
     }
   }
 
-  fn parse_status(&mut self) -> ~Response {
-    ~Status(replace(self.stream.read_line().unwrap(), "\r\n", ""))
+  fn parse_status(&mut self) -> Response {
+    Status(replace(self.stream.read_line().unwrap(), "\r\n", ""))
   }
 
   fn send_command(&mut self, cmd_pieces: ~[~str]) {
