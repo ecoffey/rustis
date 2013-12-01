@@ -9,6 +9,9 @@ fn ping() {
 
   let r = c.ping();
 
-  let expected = Status(~"PONG");
-  assert!(expected.eq(r));
+  println(r.to_str());
+
+  let expected = ~Status(~"PONG");
+
+  assert!(r.eq(&expected));
 }
