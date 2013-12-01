@@ -1,6 +1,7 @@
 extern mod rustis;
 
-use rustis::Client;
+use rustis::client::Client;
+use rustis::response::Status;
 
 #[test]
 fn ping() {
@@ -8,6 +9,6 @@ fn ping() {
 
   let r = c.ping();
 
-  let expected = "PONG";
-  assert!(expected == r);
+  let expected = Status(~"PONG");
+  assert!(expected.eq(r));
 }
