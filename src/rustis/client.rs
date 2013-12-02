@@ -2,8 +2,9 @@ use std::io::net::tcp::TcpStream;
 use std::io::net::ip::SocketAddr;
 use std::io::buffered::BufferedStream;
 use std::str::replace;
+use std::uint::parse_bytes;
 
-use response::{Response,Status};
+use response::{Response,Status,Bulk};
 
 pub struct Client {
   host: SocketAddr,
@@ -29,11 +30,24 @@ impl Client {
     self.parse_response()
   }
 
+  pub fn set(&mut self, key: ~str, value: ~str) -> Response {
+    self.send_command(~[~"SET", key, value]);
+
+    self.parse_response()
+  }
+
+  pub fn get(&mut self, key: ~str) -> Response {
+    self.send_command(~[~"GET", key]);
+
+    self.parse_response()
+  }
+
   fn parse_response(&mut self) -> Response {
     match self.stream.read_char() {
       Some(c) => {
         match c {
           '+' => self.parse_status(),
+          '$' => self.parse_bulk(),
           _ => fail!("Unknown response type")
         }
       },
@@ -43,6 +57,21 @@ impl Client {
 
   fn parse_status(&mut self) -> Response {
     Status(replace(self.stream.read_line().unwrap(), "\r\n", ""))
+  }
+
+  fn parse_bulk(&mut self) -> Response {
+    let len = self.parse_int();
+    let res = Bulk(self.stream.read_bytes(len));
+
+    self.stream.read_line();
+    
+    res
+  }
+
+  fn parse_int(&mut self) -> uint {
+    let chomped_line = chomp(self.stream.read_line().unwrap());
+    let chomped_bytes = chomped_line.as_bytes();
+    parse_bytes(chomped_bytes, 10).unwrap()
   }
 
   fn send_command(&mut self, cmd_pieces: ~[~str]) {
@@ -61,4 +90,8 @@ impl Client {
     self.stream.write(cmd_str.as_bytes());
     self.stream.flush();
   }
+}
+
+fn chomp(s: ~str) -> ~str {
+  replace(s, "\r\n", "")
 }
