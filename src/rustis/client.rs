@@ -25,19 +25,19 @@ impl Client {
   }
 
   pub fn ping(&mut self) -> Response {
-    self.send_command(~[~"PING"]);
+    self.send_command(~["PING"]);
     
     self.parse_response()
   }
 
-  pub fn set(&mut self, key: ~str, value: ~str) -> Response {
-    self.send_command(~[~"SET", key, value]);
+  pub fn set(&mut self, key: &str, value: &str) -> Response {
+    self.send_command(~[&"SET", key, value]);
 
     self.parse_response()
   }
 
-  pub fn get(&mut self, key: ~str) -> Response {
-    self.send_command(~[~"GET", key]);
+  pub fn get(&mut self, key: &str) -> Response {
+    self.send_command(~[&"GET", key]);
 
     self.parse_response()
   }
@@ -56,7 +56,7 @@ impl Client {
   }
 
   fn parse_status(&mut self) -> Response {
-    Status(replace(self.stream.read_line().unwrap(), "\r\n", ""))
+    Status(chomp(self.stream.read_line().unwrap()))
   }
 
   fn parse_bulk(&mut self) -> Response {
@@ -74,7 +74,7 @@ impl Client {
     parse_bytes(chomped_bytes, 10).unwrap()
   }
 
-  fn send_command(&mut self, cmd_pieces: ~[~str]) {
+  fn send_command(&mut self, cmd_pieces: ~[&str]) {
     let mut cmd_str = ~"*";  
     cmd_str.push_str(cmd_pieces.len().to_str());
     cmd_str.push_str("\r\n");

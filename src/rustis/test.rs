@@ -19,7 +19,7 @@ fn ping() {
 fn set_is_ok() {
   let mut c = Client::new("127.0.0.1:6379");
 
-  let r = c.set(~"hello", ~"world");
+  let r = c.set("hello", "world");
 
   let expected = Status(~"OK");
 
@@ -30,11 +30,12 @@ fn set_is_ok() {
 fn get() {
   let mut c = Client::new("127.0.0.1:6379");
 
-  c.set(~"hello", ~"world");
+  c.set("hello", "world");
 
-  let r = c.get(~"hello");
+  let r = c.get("hello");
 
-  let expected = Bulk(~['w' as u8, 'o' as u8, 'r' as u8, 'l' as u8, 'd' as u8]);
+  let expected_str = ~"world";
+  let expected = Bulk(expected_str.into_bytes());
 
   assert!(r.eq(&expected));
 }
